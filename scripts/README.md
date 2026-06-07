@@ -15,6 +15,7 @@ PowerShell 5.1 and PowerShell 7.
 | `Test-HotContextDiscipline.ps1` | Hot rules stay small instead of moving always-loaded instructions into helper docs or every-task skills. | `AGENTS.md` / `CLAUDE.md` gets too large, always loads another instruction file, or a skill claims every-task scope. |
 | `Test-ContextEngineeringDiscipline.ps1` | The shared context budget, compressed reference integrity, repo map freshness, and action/evidence ledger contract remains present, skill-wired, and CI-wired. | The shared contract, handoff/ledger skills, gate docs, or CI workflow drops those context-management anchors. |
 | `Test-CompressedHandoffSummaryProtocol.ps1` | A compressed handoff/protocol summary keeps source pointer, scope, exclusions, manager-only gates, validation evidence, stale-map status, and next executable action. | The fixture drops one of those load-bearing fields, points outside the repo, or carries unusable evidence/action state. |
+| `Test-MissionMapFixture.ps1` | The public Mission Map fixture has the required manager-visible fields and no private path/session/credential markers. | The fixture misses active goal, guardian, PR/check state, blockers, evidence, next action, or includes private runtime markers. |
 
 ## Run them
 
@@ -45,6 +46,9 @@ powershell.exe -ExecutionPolicy Bypass -File scripts/Test-ContextEngineeringDisc
 
 # Compressed handoff protocol fixture: prove resumable summaries keep executable context
 powershell.exe -ExecutionPolicy Bypass -File scripts/Test-CompressedHandoffSummaryProtocol.ps1 -Root .
+
+# Mission Map: validate the public-safe orchestration UI fixture
+powershell.exe -ExecutionPolicy Bypass -File scripts/Test-MissionMapFixture.ps1
 ```
 
 Add `-Json` to any gate that supports it for a machine-readable summary.
