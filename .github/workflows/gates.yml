@@ -46,6 +46,10 @@ jobs:
         shell: pwsh
         run: ./scripts/Test-ContextEngineeringDiscipline.ps1 -Root .
 
+      - name: Code-intelligence benchmark gate (compiled wiki usefulness)
+        shell: pwsh
+        run: ./scripts/Test-CodeIntelligenceBenchmark.ps1 -Root .
+
       - name: Skill-audit gate (every shipped SKILL.md is structurally sound)
         shell: pwsh
         run: ./scripts/Test-SkillAudit.ps1 -Root .
