@@ -15,6 +15,7 @@ PowerShell 5.1 and PowerShell 7.
 | `Test-HotContextDiscipline.ps1` | Hot rules stay small instead of moving always-loaded instructions into helper docs or every-task skills. | `AGENTS.md` / `CLAUDE.md` gets too large, always loads another instruction file, or a skill claims every-task scope. |
 | `Test-ContextEngineeringDiscipline.ps1` | The shared context budget, compressed reference integrity, repo map freshness, and action/evidence ledger contract remains present, skill-wired, and CI-wired. | The shared contract, handoff/ledger skills, gate docs, or CI workflow drops those context-management anchors. |
 | `Test-MissionMapFixture.ps1` | The public Mission Map fixture has the required manager-visible fields and no private path/session/credential markers. | The fixture misses active goal, guardian, PR/check state, blockers, evidence, next action, or includes private runtime markers. |
+| `Test-ExternalAdoptionSafetyGate.ps1` | External skills/repos/MCP packets are not treated as adoption-ready until static danger strings and adoption-lane closeout are checked. | A candidate has unresolved arbitrary exec, download-pipe-exec, host-global/secret refs, credential/cloud/billing/MCP surfaces, daemon startup, a truncated scan, or missing pilot closeout decisions. |
 
 ## Run them
 
@@ -45,6 +46,9 @@ powershell.exe -ExecutionPolicy Bypass -File scripts/Test-ContextEngineeringDisc
 
 # Mission Map: validate the public-safe orchestration UI fixture
 powershell.exe -ExecutionPolicy Bypass -File scripts/Test-MissionMapFixture.ps1
+
+# External adoption safety: prove the public-safe pre-adoption gate has teeth
+powershell.exe -ExecutionPolicy Bypass -File scripts/Test-ExternalAdoptionSafetyGate.ps1 -SelfTest
 ```
 
 Add `-Json` to any gate that supports it for a machine-readable summary.
@@ -78,6 +82,25 @@ repo map freshness, and action/evidence ledger. It also verifies that handoff
 and work-ledger skills carry the operational guidance, this gate is documented
 here, and it runs in CI. It is structural evidence only; a workflow claim still
 needs current command or tool evidence.
+
+## What `Test-ExternalAdoptionSafetyGate.ps1` checks
+
+This public-safe gate is a small SkillSpector/SkillOpt-style transform: it does
+not install external scanners or import a full external runtime. It scans a
+bounded local candidate path for danger strings, host-global/secret references
+from the shared containment schema, credential/cloud/billing/MCP surfaces,
+global installs, and daemon/container startup. It can also validate an
+adoption-lane ledger with `Test-AdoptionLaneCloseout.ps1` so pilots do not end
+as "we tried it" without adopt/scale/watch/reject/block/manager-only closeout.
+
+Use it before direct adoption:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File scripts/Test-ExternalAdoptionSafetyGate.ps1 -CandidatePath path\to\candidate
+```
+
+Static PASS is not a behavioral safety claim. It means the bounded pre-adoption
+gate found no unresolved string/closeout blockers in the scanned surface.
 
 Exit codes: `0` = PASS, `1` = FAIL, `2` = BLOCKED (containment gate only, when
 the target is not a git repository -- reported BLOCKED, never a silent PASS).
