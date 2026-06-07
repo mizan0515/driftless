@@ -50,6 +50,10 @@ jobs:
         shell: pwsh
         run: ./scripts/Test-SkillAudit.ps1 -Root .
 
+      - name: External-adoption safety gate (public-safe self-test)
+        shell: pwsh
+        run: ./scripts/Test-ExternalAdoptionSafetyGate.ps1 -SelfTest
+
       - name: Improvement-principle gate (root-cause, principle-based, no overfit)
         shell: pwsh
         run: ./scripts/Test-ImprovementPrincipleDiscipline.ps1 -Root .
