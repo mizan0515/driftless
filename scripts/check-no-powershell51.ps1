@@ -30,7 +30,7 @@ function Get-ScanFiles {
     foreach ($dir in $skipDirs) {
       if ($full -match ('[\\/]' + [regex]::Escape($dir) + '[\\/]')) { return $false }
     }
-    return ($extensions -contains $_.Extension.ToLowerInvariant()) -or ($names -contains $_.Name)
+    return ($extensions -contains $_.Extension.ToLowerInvariant()) -or ($names -contains $_.Name) -or ($relative -match '^\.githooks[\\/]')
   }
 }
 
