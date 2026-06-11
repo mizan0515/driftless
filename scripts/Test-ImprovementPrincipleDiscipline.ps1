@@ -79,10 +79,22 @@ function Invoke-SelfTest {
   if ($brokenMissing.Count -lt 1) {
     $failures.Add('negative fixture did not report missing principle anchors') | Out-Null
   }
+  # Code as agent harness companion principle: same clean/broken anchor proof.
+  $harnessAnchors = @('code as agent harness', 'executable code', 'lesson-promotion ladder')
+  $harnessClean = 'Code as agent harness: express recurring rules as executable code; promote them down the lesson-promotion ladder toward a gate.'
+  $harnessCleanMissing = Test-Anchors -Text $harnessClean -Anchors $harnessAnchors
+  if ($harnessCleanMissing.Count -ne 0) {
+    $failures.Add('harness positive fixture unexpectedly missed anchors') | Out-Null
+  }
+  $harnessBroken = 'Code as agent harness: write some code.'
+  $harnessBrokenMissing = Test-Anchors -Text $harnessBroken -Anchors $harnessAnchors
+  if ($harnessBrokenMissing.Count -lt 1) {
+    $failures.Add('harness negative fixture did not report missing anchors') | Out-Null
+  }
   return [pscustomobject]@{
     passed = ($failures.Count -eq 0)
     failures = @($failures)
-    detail = ("clean_missing={0}; broken_missing={1}" -f $cleanMissing.Count, $brokenMissing.Count)
+    detail = ("clean_missing={0}; broken_missing={1}; harness_clean_missing={2}; harness_broken_missing={3}" -f $cleanMissing.Count, $brokenMissing.Count, $harnessCleanMissing.Count, $harnessBrokenMissing.Count)
   }
 }
 
@@ -143,6 +155,15 @@ $agentAnchors = @(
   'principle-based guidance',
   'spec/case overfitting',
   'special-casing'
+)
+
+# Code as agent harness (the companion to section 8): keeps the principle from
+# being silently dropped by later prompt compression or doc cleanup.
+$harnessAnchors = @(
+  'Code as agent harness',
+  'executable code',
+  'runnable check',
+  'lesson-promotion ladder'
 )
 
 $skillAnchors = @(
@@ -213,6 +234,16 @@ if (-not (Test-Path -LiteralPath $sharedPath -PathType Leaf)) {
   $evidence = "anchors=$($sharedAnchors.Count); missing=$($missing.Count)"
   if ($missing.Count -gt 0) { $evidence += '; missing_anchors=' + ($missing -join ', ') }
   Add-Result $results 'Shared improvement principle' $status $true $evidence 'Restore section 8 so both profiles consume the same root-cause/no-overfit rule.'
+}
+
+if (-not (Test-Path -LiteralPath $sharedPath -PathType Leaf)) {
+  Add-Result $results 'Shared code-as-agent-harness principle' 'FAIL' $true "missing=$sharedPath" 'Restore the Code as agent harness paragraph in section 8 of the shared contract.'
+} else {
+  $missing = Test-Anchors -Text (Read-Utf8 $sharedPath) -Anchors $harnessAnchors
+  $status = if ($missing.Count -eq 0) { 'PASS' } else { 'FAIL' }
+  $evidence = "anchors=$($harnessAnchors.Count); missing=$($missing.Count)"
+  if ($missing.Count -gt 0) { $evidence += '; missing_anchors=' + ($missing -join ', ') }
+  Add-Result $results 'Shared code-as-agent-harness principle' $status $true $evidence 'Restore the Code as agent harness companion principle so both profiles express recurring rules as executable code.'
 }
 
 $agentsPath = Join-Path $resolvedRoot 'AGENTS.md'

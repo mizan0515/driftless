@@ -143,6 +143,18 @@ improvement belongs in an existing asset, the shared tier, a tool-specific
 profile, a wrapper/alias, a narrower trigger, or a gate before adding a new
 surface.
 
+**Code as agent harness.** When an action, rule, or verification recurs, must be
+verified, or carries state, express it as **executable code** -- a script, gate,
+hook, schema check, or composed code action -- rather than one-off prose or a long
+chain of discrete tool calls. Prose carries intent; code enforces and reproduces
+it. A `Done`/`PASS` claim is backed by a **runnable check** (gate, test, schema, or
+an end-to-end run), not a summary sentence. A rule whose violation is costly moves
+down the lesson-promotion ladder (memory < skill < hot rule < hook < gate) toward
+code, and each run leaves reusable code so the next run costs less. Do not
+over-apply: a true one-off needs no gate, and discrete tool calls stay right for
+single lookups and untrusted, non-inspectable actions. See
+[docs/en/code-as-agent-harness.md](../../../docs/en/code-as-agent-harness.md).
+
 ---
 
 ## 9. Context engineering discipline
