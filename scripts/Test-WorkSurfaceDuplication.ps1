@@ -34,10 +34,9 @@
       scope by design; it trips the moment its SKILL.md lands.
     * Script surfaces are the declared scriptRoots (top-level *.ps1 only,
       non-recursive) plus every skill-embedded <skill>/scripts folder derived
-      from the declared skill roots. scripts/winps51/ is deliberately NOT a
-      surface: it is the Windows PowerShell 5.1 compatibility home governed by
-      the shell contract (docs/powershell-shell-contract.md), and its entries
-      are runtime variants, not duplicate work.
+      from the declared skill roots. Subdirectories of a script root are
+      deliberately NOT surfaces: a dedicated legacy-shell compatibility folder
+      (if present) holds runtime variants of a task, not duplicate work.
     * A skills-bearing root that exists on disk but is NOT declared FAILs
       (undeclared-root discovery), so a layout rename cannot silently shrink
       coverage. Missing allowlist, unparseable allowlist, or a scan with fewer
@@ -239,6 +238,13 @@ foreach ($a in @($manifest.allowedDuplicates)) {
   $kind = 'skill'
   if ($a.kind) { $kind = ([string]$a.kind).Trim().ToLowerInvariant() }
   $key = ([string]$a.name).Trim().ToLowerInvariant()
+  # The reason is the audit artifact that makes an intentional pair reviewable.
+  # A reason-less entry must not be able to silence a duplicate - that would be
+  # a quiet bypass of exactly the class this gate exists to catch.
+  if ([string]::IsNullOrWhiteSpace([string]$a.reason)) {
+    Add-Row ("Allowlist entry missing reason: " + $key) 'FAIL' $true 'allowedDuplicates entries must carry a non-empty reason; the entry was ignored, so any duplicate it meant to allow still FAILs' 'Add a reason explaining why the pair is intentional, or remove the entry.'
+    continue
+  }
   if ($kind -eq 'script') { $allowScript[$key] = [string]$a.reason }
   else { $allowSkill[$key] = [string]$a.reason }
 }

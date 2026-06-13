@@ -43,7 +43,8 @@
   limited to this store unless -CrossStatePath is also given.
 
 .PARAMETER CrossStatePath
-  Extra store files to scan read-only for conflicts (never mutated).
+  Extra store files to scan read-only for conflicts (never mutated). Additive:
+  the default stores are still scanned unless -StatePath narrows the run.
 
 .OUTPUTS
   Key=value lines, or JSON with -Json. Exit codes: 0 clear / 1 missing selector
@@ -195,6 +196,11 @@ function Get-StorePath([pscustomobject]$Repo, [string]$OverridePath) {
 }
 
 function Get-CrossStorePaths([pscustomobject]$Repo, [string]$PrimaryPath) {
+    # The two sources are ADDITIVE, never exclusive: explicit -CrossStatePath
+    # entries extend the scan, and the default stores are always included
+    # whenever no explicit -StatePath narrows the run. Making them exclusive
+    # would let a -CrossStatePath-only call silently skip a live default-store
+    # claim (a false all-clear, violating arbitration rule R3).
     $paths = @()
     if ($null -ne $CrossStatePath) {
         foreach ($candidate in @($CrossStatePath)) {
@@ -203,7 +209,7 @@ function Get-CrossStorePaths([pscustomobject]$Repo, [string]$PrimaryPath) {
             }
         }
     }
-    elseif ([string]::IsNullOrWhiteSpace($StatePath)) {
+    if ([string]::IsNullOrWhiteSpace($StatePath)) {
         foreach ($dirName in $DefaultStoreDirNames) {
             $paths += (Join-Path $Repo.ClaimRoot (Join-Path $dirName "session-claims.json"))
         }
@@ -320,8 +326,18 @@ function Test-ClaimStale([object]$Claim, [int]$Hours) {
         return $true
     }
 
+    # pwsh 7 ConvertFrom-Json materializes ISO timestamps as [datetime] with
+    # Kind=Utc; casting that to [string] and re-parsing without RoundtripKind
+    # re-interprets the value as LOCAL time and shifts it by the host UTC
+    # offset, misclassifying fresh claims as stale (and vice versa) on any
+    # non-UTC host. Handle both shapes Kind-aware.
     try {
-        $updated = [datetime]::Parse([string]$stamp).ToUniversalTime()
+        if ($stamp -is [datetime]) {
+            $updated = $stamp.ToUniversalTime()
+        }
+        else {
+            $updated = [datetime]::Parse([string]$stamp, [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::RoundtripKind).ToUniversalTime()
+        }
     }
     catch {
         return $true

@@ -157,6 +157,21 @@ try {
     )
     Assert-True ($crossClear.state -eq "OWNERSHIP_CLEAR_TO_START") "Disjoint cross-store Check did not return clear-to-start."
 
+    # Timezone regression: a claim acquired seconds ago must classify as a live
+    # DUPLICATE (exit 2), never as stale PARENT_REVIEW_NEEDED (exit 3), even
+    # with the tightest threshold and on non-UTC hosts. Guards the Kind-aware
+    # timestamp handling in Test-ClaimStale.
+    $freshTight = Invoke-ClaimJson $script:Core @(
+        "-Mode", "Check",
+        "-RepoPath", $repo,
+        "-Issue", "700",
+        "-StatePath", $storeA,
+        "-CrossStatePath", $storeB,
+        "-StaleAfterHours", "1",
+        "-Json"
+    ) @(2)
+    Assert-True ($freshTight.state -eq "DUPLICATE_WORK_DETECTED") "Fresh claim was misclassified as stale (timezone-sensitive timestamp handling regressed)."
+
     # --- Cross-store surface overlap stays a WAIT state. ---------------------
     $crossWait = Invoke-ClaimJson $script:Core @(
         "-Mode", "Check",
@@ -231,6 +246,17 @@ try {
     Assert-True ($defaultCheck.state -eq "DUPLICATE_WORK_DETECTED") "Default-store Check did not cross-detect the .codex-work claim."
     Assert-True (([string]$defaultCheck.statePath).EndsWith(".agent-work\session-claims.json")) "Default primary store is not .agent-work."
     Assert-True (([string]$defaultCheck.conflicts[0].store) -eq ([System.IO.Path]::GetFullPath($fixtureCodexStore))) "Default cross-store scan did not name the .codex-work store."
+
+    # -CrossStatePath is additive: passing it WITHOUT -StatePath must not turn
+    # off the default-store scan (a false all-clear would break rule R3).
+    $additiveCheck = Invoke-ClaimJson $script:Core @(
+        "-Mode", "Check",
+        "-RepoPath", $fixtureRoot,
+        "-Issue", "555",
+        "-CrossStatePath", (Join-Path $fixtureRoot "unrelated-store.json"),
+        "-Json"
+    ) @(2)
+    Assert-True ($additiveCheck.state -eq "DUPLICATE_WORK_DETECTED") "Explicit -CrossStatePath disabled the default cross-store scan."
 
     $wrapperCheck = Invoke-ClaimJson $script:Wrapper @(
         "-Mode", "Check",
