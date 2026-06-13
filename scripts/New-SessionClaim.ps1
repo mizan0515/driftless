@@ -1,3 +1,5 @@
+#requires -Version 7.0
+#requires -PSEdition Core
 <#
 .SYNOPSIS
   Tool-agnostic session-claim helper (issue #137). One implementation for every
@@ -27,8 +29,7 @@
 
   This file is the single implementation. New-CodexSessionClaim.ps1 is a thin
   back-compat wrapper that delegates here with -StoreDirName .codex-work.
-  Deliberately works under both Windows PowerShell 5.1 and pwsh 7 (no #requires)
-  because agent hooks may invoke it from either shell.
+  Runs under PowerShell 7 (pwsh), the repo's default agent shell.
 
 .PARAMETER Mode
   Check (read-only scan), Acquire (scan then write a claim), Release (remove

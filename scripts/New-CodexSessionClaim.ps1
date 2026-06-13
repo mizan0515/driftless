@@ -1,3 +1,5 @@
+#requires -Version 7.0
+#requires -PSEdition Core
 <#
 .SYNOPSIS
   Back-compat wrapper: Codex-named entrypoint for the tool-agnostic session
@@ -9,7 +11,7 @@
   skills). This wrapper only preserves the historical entrypoint name and its
   historical default store (.codex-work/session-claims.json) for existing
   callers and CI. New callers should use New-SessionClaim.ps1 directly.
-  Works under both Windows PowerShell 5.1 and pwsh 7, like the core.
+  Runs under PowerShell 7 (pwsh), like the core.
 #>
 param(
     [ValidateSet("Check", "Acquire", "Release", "Show")]

@@ -9,8 +9,8 @@
 
 .DESCRIPTION
   Complements Test-CodexSessionClaim.ps1 (which exercises the wrapper's full
-  legacy behavior under Windows PowerShell 5.1). This gate drives the core under
-  pwsh and focuses on what is NEW in the tool-agnostic helper:
+  legacy behavior). This gate drives the core under pwsh and focuses on what is
+  NEW in the tool-agnostic helper:
 
     * explicit-StatePath isolation (old behavior preserved exactly),
     * -CrossStatePath read-only conflict scanning across a second store,
