@@ -18,6 +18,12 @@
       "why": "The single machine-readable forbidden surface consumed by both profiles' containment guards. One edit re-protects both profiles."
     },
     {
+      "name": "hyperresearch-run-contract",
+      "file": "schemas/hyperresearch-run.schema.json",
+      "consumedBy": ["claude", "codex"],
+      "why": "Provider-neutral resumable research state, evidence, contradiction, citation, and closeout contract consumed by the shared long-research-gradient skill."
+    },
+    {
       "name": "skill-finish-to-done",
       "file": "skills/finish-to-done/SKILL.md",
       "consumedBy": ["claude", "codex"],
