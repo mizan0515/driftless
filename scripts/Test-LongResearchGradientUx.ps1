@@ -55,7 +55,13 @@ if (-not (Test-Path -LiteralPath $skillPath -PathType Leaf)) {
     [pscustomobject]@{ label = 'issue field'; value = '`issue/watch`' },
     [pscustomobject]@{ label = 'saving field'; value = '`saved tokens/time/intervention`' },
     [pscustomobject]@{ label = 'next sprint field'; value = '`next sprint`' },
-    [pscustomobject]@{ label = 'example reference'; value = 'references/student-fast-path.md' }
+    [pscustomobject]@{ label = 'example reference'; value = 'references/student-fast-path.md' },
+    [pscustomobject]@{ label = 'hyperresearch portable contract'; value = '## HyperResearch portable contract' },
+    [pscustomobject]@{ label = 'verbatim query'; value = 'verbatim query' },
+    [pscustomobject]@{ label = 'canonical query'; value = 'canonical query' },
+    [pscustomobject]@{ label = 'contradiction graph'; value = 'contradiction graph' },
+    [pscustomobject]@{ label = 'citation binding'; value = 'citation-to-claim' },
+    [pscustomobject]@{ label = 'patch-only revision'; value = 'patch-only' }
   )
   foreach ($check in $checks) {
     $ok = $skillText.Contains($check.value)

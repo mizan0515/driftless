@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mizan0515/driftless/profiles/shared/schemas/hyperresearch-run.schema.json",
+  "title": "Portable HyperResearch run",
+  "description": "Provider-neutral checkpoint and evidence contract for resumable deep research.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "query",
+    "tier",
+    "dissertation_opt_in",
+    "budget",
+    "phase",
+    "status",
+    "sources",
+    "contradictions",
+    "citation_bindings",
+    "unresolved_critical_findings",
+    "decision"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "query": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verbatim", "canonical"],
+      "properties": {
+        "verbatim": { "type": "string", "minLength": 1 },
+        "canonical": { "type": "string", "minLength": 1 }
+      }
+    },
+    "tier": { "enum": ["light", "full", "dissertation"] },
+    "dissertation_opt_in": { "type": "boolean", "default": false },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_sources", "max_minutes"],
+      "properties": {
+        "max_sources": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "max_minutes": { "type": "integer", "minimum": 1, "maximum": 1440 }
+      }
+    },
+    "phase": {
+      "enum": [
+        "canonical-query",
+        "width-sweep",
+        "contradiction-graph",
+        "depth-investigation",
+        "evidence-digest",
+        "synthesis",
+        "adversarial-review",
+        "citation-check",
+        "patch-only-revision",
+        "closeout"
+      ]
+    },
+    "resume_phase": { "type": ["string", "null"] },
+    "status": { "enum": ["active", "blocked", "completed"] },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["phase", "evidence"],
+        "properties": {
+          "phase": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "independent"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "independent": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "contradictions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "citation_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "source", "verified"],
+        "properties": {
+          "claim": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 },
+          "verified": { "type": "boolean" }
+        }
+      }
+    },
+    "unresolved_critical_findings": { "type": "integer", "minimum": 0 },
+    "decision": { "enum": ["pending", "adopt", "pilot", "watch", "reject", "stop"] }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "tier": { "const": "dissertation" } }, "required": ["tier"] },
+      "then": { "properties": { "dissertation_opt_in": { "const": true } } }
+    },
+    {
+      "if": { "properties": { "status": { "const": "completed" } }, "required": ["status"] },
+      "then": {
+        "properties": {
+          "phase": { "const": "closeout" },
+          "sources": { "properties": { "total": { "minimum": 1 } } },
+          "citation_bindings": { "contains": { "properties": { "verified": { "const": true } }, "required": ["verified"] } },
+          "unresolved_critical_findings": { "const": 0 },
+          "decision": { "enum": ["adopt", "pilot", "watch", "reject", "stop"] }
+        }
+      }
+    }
+  ]
+}
